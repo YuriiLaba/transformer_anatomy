@@ -11,7 +11,7 @@ from torch.utils.data import Dataset
 
 class BERTDataset(Dataset):
 
-    def __init__(self, tokenizer, path_to_dataset, max_length=128):
+    def __init__(self, tokenizer, path_to_dataset, max_length):
         self.tokenizer = tokenizer
         self.max_length = max_length
         
@@ -51,7 +51,7 @@ class BERTDataset(Dataset):
         tokens_all = ['[CLS]'] + tokens_sent_a + ['[SEP]'] + tokens_sent_b + ['[SEP]']
         input_ids = self.tokenizer.convert_tokens_to_ids(tokens_all)
         attention_mask = [1] * len(input_ids)
-        token_type_ids = [0] * (len(tokens_sent_a) + 2) + [1] * (len(tokens_sent_b) + 1)
+        token_type_ids = [1] * (len(tokens_sent_a) + 2) + [2] * (len(tokens_sent_b) + 1)
         
         # padding
         padding_length = self.max_length - len(input_ids)
@@ -87,4 +87,4 @@ class BERTDataset(Dataset):
                     input_ids[i] = random.randint(0, self.tokenizer.vocab_size - 1)
                 # 10% chance of leaving the token unchanged (no action needed)
 
-        return torch.tensor(input_ids, dtype=torch.long), torch.tensor(mlm_labels, dtype=torch.long)
+        return input_ids, mlm_labels
