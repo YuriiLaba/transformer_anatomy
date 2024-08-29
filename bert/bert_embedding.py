@@ -28,6 +28,6 @@ class BERTEmbedding(torch.nn.Module):
         embeddings = self.layer_norm(embeddings)
         embeddings = self.dropout(embeddings)
 
-        return embeddings.shape
+        return embeddings
 
         

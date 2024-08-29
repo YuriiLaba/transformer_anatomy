@@ -72,7 +72,7 @@ class BERTDataset(Dataset):
 
     def _add_mask_tokens(self, input_ids, attention_mask):
         mlm_labels = input_ids.copy()
-        mlm_labels = [-100 if mask == 0 else label for label, mask in zip(mlm_labels, attention_mask)]
+        mlm_labels = [-100 if mask == 0 else label for label, mask in zip(mlm_labels, attention_mask)] # -100 tells PyTorch's CrossEntropyLoss function to ignore these tokens
         
         for i in range(len(input_ids)):
             # Skip special tokens [CLS], [SEP], and padding tokens (with id 0)
