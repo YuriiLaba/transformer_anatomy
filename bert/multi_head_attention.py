@@ -35,7 +35,7 @@ class MultiHeadAttention(nn.Module):
         return x
 
 class FeedForward(nn.Module): 
-    def __init__(self, hidden_size, intermediate_size=2048, hidden_dropout_prob=0.1):
+    def __init__(self, hidden_size, intermediate_size=3072, hidden_dropout_prob=0.1):
         super().__init__()
         self.linear_1 = nn.Linear(hidden_size, intermediate_size) 
         self.linear_2 = nn.Linear(intermediate_size, hidden_size) 
