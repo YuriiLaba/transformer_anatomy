@@ -1,36 +1,17 @@
-from math import sqrt
-import torch
-import torch.nn.functional as F
 from torch import nn
+from embedding_layer import Embeddings
+from encoder_block import EncoderBlock
 
-
-def scaled_dot_product_attention(query, key, value, mask):
-    dim_k = query.size(-1)
-    scores = torch.bmm(query, key.transpose(1, 2)) / sqrt(dim_k)
-    scores = scores.masked_fill(mask == 0, -1e9)
-    weights = F.softmax(scores, dim=-1)
-    return torch.bmm(weights, value)
-
-class AttentionHead(nn.Module):
-    def __init__(self, embed_dim, head_dim):
+class Encoder(nn.Module):
+    def __init__(self, num_hidden_layers=12):
         super().__init__()
-        self.q = nn.Linear(embed_dim, head_dim) 
-        self.k = nn.Linear(embed_dim, head_dim) 
-        self.v = nn.Linear(embed_dim, head_dim)
+        self.embeddings = Embeddings()
+        self.layers = nn.ModuleList([EncoderBlock() for _ in range(num_hidden_layers)])
+        
+    def forward(self, x):
+        mask = (x["input_ids"] > 0).unsqueeze(1).repeat(1, x["input_ids"].size(1), 1)
 
-    def forward(self, hidden_state, mask):
-        attn_outputs = scaled_dot_product_attention(
-        self.q(hidden_state), self.k(hidden_state), self.v(hidden_state), mask) 
-        return attn_outputs
-
-class MultiHeadAttention(nn.Module): 
-    def __init__(self, embed_dim, num_heads):
-        super().__init__()
-        head_dim = embed_dim // num_heads 
-        self.heads = nn.ModuleList([AttentionHead(embed_dim, head_dim) for _ in range(num_heads)])
-        self.output_linear = nn.Linear(embed_dim, embed_dim)
-
-    def forward(self, hidden_state):
-        x = torch.cat([h(hidden_state) for h in self.heads], dim=-1) 
-        x = self.output_linear(x)
+        x = self.embeddings(x["input_ids"], x["token_type_ids"]) 
+        for layer in self.layers:
+            x = layer(x, mask) 
         return x

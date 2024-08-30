@@ -66,7 +66,7 @@ class BERTDataset(Dataset):
             "attention_mask": torch.tensor(attention_mask, dtype=torch.long), 
             "token_type_ids": torch.tensor(token_type_ids, dtype=torch.long),
 
-            "tokens_all": tokens_all, 
+            # "tokens_all": tokens_all, 
             "mlm_labels": torch.tensor(mlm_labels, dtype=torch.long), 
             }
 
