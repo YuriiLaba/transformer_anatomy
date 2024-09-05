@@ -19,7 +19,7 @@ class Trainer:
         self.max_length = 128
         self.num_heads = 12
         self.batch_size = 32
-        self.device = 'gpu'
+        self.device = 'cpu'
         
         self.run = neptune.init_run(
             project="laba/bert-training",
@@ -33,7 +33,7 @@ class Trainer:
         self.eval_data = BERTDataset(tokenizer=self.tokenizer, path_to_dataset="datasets/val_dataset.pkl", max_length=self.max_length)
 
         self.train_loader = DataLoader(self.train_data, batch_size=self.batch_size, shuffle=False, pin_memory=True)
-        self.eval_loader = DataLoader(self.eval_loader, batch_size=self.batch_size, shuffle=False, pin_memory=True)
+        self.eval_loader = DataLoader(self.eval_data, batch_size=self.batch_size, shuffle=False, pin_memory=True)
     
     def stop_logging(self):
         self.run.stop()
