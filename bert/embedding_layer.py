@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 class Embeddings(torch.nn.Module):
-    def __init__(self, vocab_size=30_000, hidden_size=768, max_length=128):
+    def __init__(self, vocab_size=30_522, hidden_size=768, max_length=128):
 
         super().__init__()
         self.vocab_size = vocab_size

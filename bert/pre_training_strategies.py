@@ -2,9 +2,6 @@ import torch
 
 class NextSentencePrediction(torch.nn.Module):
     def __init__(self, hidden):
-        """
-        :param hidden: BERT model output size
-        """
         super().__init__()
         self.linear = torch.nn.Linear(hidden, 2)
         self.softmax = torch.nn.LogSoftmax(dim=-1)

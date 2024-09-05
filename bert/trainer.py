@@ -22,36 +22,33 @@ class Trainer:
         self.criterion = torch.nn.NLLLoss(ignore_index=-100)
 
         self.train_data = BERTDataset(tokenizer=self.tokenizer, path_to_dataset="datasets/dataset.pkl", max_length=self.max_length)
-        self.train_loader = DataLoader(self.train_data, batch_size=2, shuffle=True, pin_memory=True)
+        self.train_loader = DataLoader(self.train_data, batch_size=1, shuffle=False, pin_memory=True)
+
+    def _train_step(self, batch):
+        next_sent_output, mask_lm_output = self.model.forward(batch)
+
+        next_loss = self.criterion(next_sent_output, batch["nsp_label"])
+        mask_loss = self.criterion(mask_lm_output.transpose(1, 2), batch["mlm_labels"]) # why .transpose(1, 2)?
+        return next_loss + mask_loss
     
     def train(self, epoch):
-        data_iter = tqdm.tqdm(enumerate(self.train_loader), desc="EP_%s:%d" % ("train", epoch), total=len(self.train_loader), bar_format="{l_bar}{r_bar}")
+        data_iter = tqdm.tqdm(enumerate(self.train_loader), desc="EP_%s:%d" % ("train", epoch), 
+                              total=len(self.train_loader), bar_format="{l_bar}{r_bar}")
 
-        for i, batch in data_iter:
-
+        for idx, batch in data_iter:
             batch = {key: value.to(self.device) for key, value in batch.items()}
-
-            next_sent_output, mask_lm_output = self.model.forward(batch)
-
-            next_loss = self.criterion(next_sent_output, batch["nsp_label"])
-            print(mask_lm_output.transpose(1, 2).shape)
-            print(batch["mlm_labels"].shape)
-
-            print(mask_lm_output.shape)
-            
-            mask_loss = self.criterion(mask_lm_output.transpose(1, 2), batch["mlm_labels"]) # why .transpose(1, 2)?
-
-            loss = next_loss + mask_loss
+            loss = self._train_step(batch)
             loss.backward()
-
-            print(loss.item())
 
     
 
-trainer = Trainer()
+if __name__ == '__main__':
+    num_epoch = 5
 
-for i in range(3):
-    trainer.train(i)
+    trainer = Trainer()
+
+    for i in range(num_epoch):
+        trainer.train(i)
 
  
 # train_loader = DataLoader(train_data, batch_size=2, shuffle=True, pin_memory=True)
