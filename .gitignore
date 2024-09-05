@@ -1,0 +1,4 @@
+.vscode/
+bert/__pycache__/
+bert/datasets/
+transformer_training/

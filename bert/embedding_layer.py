@@ -18,7 +18,7 @@ class Embeddings(torch.nn.Module):
     
     def forward(self, input_ids, token_type_ids):
         seq_length = input_ids.size(1)
-        position_ids = torch.arange(seq_length, dtype=torch.long)
+        position_ids = torch.arange(seq_length, dtype=torch.long, device=input_ids.device)
         
         token_embeddings = self.token_embeddings(input_ids)
         position_embeddings = self.position_embeddings(position_ids)

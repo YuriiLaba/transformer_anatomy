@@ -19,14 +19,14 @@ class Trainer:
         self.max_length = 128
         self.num_heads = 12
         self.batch_size = 32
-        self.device = 'cpu'
+        self.device = 'cuda'
         
         self.run = neptune.init_run(
             project="laba/bert-training",
             api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiIwM2RmMzQyOS01ZWJkLTRmOGMtYTIxMy1mYmE4NzVjNDJhZWYifQ==",
         ) 
 
-        self.model = BERT()
+        self.model = BERT().to(self.device)
         self.criterion = torch.nn.NLLLoss(ignore_index=-100)
 
         self.train_data = BERTDataset(tokenizer=self.tokenizer, path_to_dataset="datasets/train_dataset.pkl", max_length=self.max_length)
@@ -62,7 +62,9 @@ class Trainer:
                 batch = {key: value.to(self.device) for key, value in batch.items()}
 
                 next_sent_loss, mask_loss = self._train_step(batch)
+
                 loss = next_sent_loss + mask_loss
+                
 
                 self.run[f"{mode}/batch_loss"].log(loss.item())
 
@@ -71,6 +73,7 @@ class Trainer:
     
 
 if __name__ == '__main__':
+    
     num_epoch = 5
 
     trainer = Trainer()
