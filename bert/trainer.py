@@ -18,7 +18,8 @@ class Trainer:
         self.hidden_size = 768
         self.max_length = 128
         self.num_heads = 12
-        self.device = 'cpu'
+        self.batch_size = 32
+        self.device = 'gpu'
         
         self.run = neptune.init_run(
             project="laba/bert-training",
@@ -28,8 +29,11 @@ class Trainer:
         self.model = BERT()
         self.criterion = torch.nn.NLLLoss(ignore_index=-100)
 
-        self.train_data = BERTDataset(tokenizer=self.tokenizer, path_to_dataset="datasets/dataset.pkl", max_length=self.max_length)
-        self.train_loader = DataLoader(self.train_data, batch_size=5, shuffle=False, pin_memory=True)
+        self.train_data = BERTDataset(tokenizer=self.tokenizer, path_to_dataset="datasets/train_dataset.pkl", max_length=self.max_length)
+        self.eval_data = BERTDataset(tokenizer=self.tokenizer, path_to_dataset="datasets/val_dataset.pkl", max_length=self.max_length)
+
+        self.train_loader = DataLoader(self.train_data, batch_size=self.batch_size, shuffle=False, pin_memory=True)
+        self.eval_loader = DataLoader(self.eval_loader, batch_size=self.batch_size, shuffle=False, pin_memory=True)
     
     def stop_logging(self):
         self.run.stop()
@@ -42,7 +46,7 @@ class Trainer:
         return next_sent_loss, mask_loss
     
     def run_epoch(self, epoch, is_training=True):
-        loader = self.train_loader if is_training else self.val_loader
+        loader = self.train_loader if is_training else self.eval_loader
         mode = "train" if is_training else "validate"
         
         if is_training:
@@ -73,7 +77,7 @@ if __name__ == '__main__':
 
     for i in range(num_epoch):
         trainer.run_epoch(i)
-        # trainer.run_epoch(is_training=False)
+        trainer.run_epoch(i, is_training=False)
     
     trainer.stop_logging()
 
