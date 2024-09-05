@@ -13,8 +13,11 @@ class EncoderBlock(nn.Module):
 
     def forward(self, x, mask):
         
-        hidden_state = self.layer_norm_1(x) * mask 
+        mask_ = (x.sum(dim=-1) != 0).unsqueeze(-1)
+
+        hidden_state = self.layer_norm_1(x) * mask_
 
         x = x + self.multi_head_attention(hidden_state, mask)
-        x = self.feed_forward(self.layer_norm_2(x * mask ))
+
+        x = self.feed_forward(self.layer_norm_2(x * mask_))
         return x
