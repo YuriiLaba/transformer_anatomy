@@ -1,4 +1,5 @@
 .vscode/
 bert/__pycache__/
+bert/.neptune/
 bert/datasets/
 transformer_training/
